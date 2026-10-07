@@ -106,7 +106,7 @@ class MainWindow:
             pady=(10, 0)
         )
 
-        # SWAP
+        # Swap
         swap_frame = ttk.LabelFrame(
             frame,
             text="Swap Space (16 MB)",
@@ -311,7 +311,7 @@ class MainWindow:
 
         self.total_processes_label.pack(
             side="left",
-            padx=15
+            padx=10
         )
 
         self.ram_available_label = ttk.Label(
@@ -321,7 +321,7 @@ class MainWindow:
 
         self.ram_available_label.pack(
             side="left",
-            padx=15
+            padx=10
         )
 
         self.swap_available_label = ttk.Label(
@@ -331,7 +331,37 @@ class MainWindow:
 
         self.swap_available_label.pack(
             side="left",
-            padx=15
+            padx=10
+        )
+
+        self.free_blocks_label = ttk.Label(
+            frame,
+            text="Free Blocks: 1"
+        )
+
+        self.free_blocks_label.pack(
+            side="left",
+            padx=10
+        )
+
+        self.largest_block_label = ttk.Label(
+            frame,
+            text="Largest Free Block: 16 MB"
+        )
+
+        self.largest_block_label.pack(
+            side="left",
+            padx=10
+        )
+
+        self.fragmentation_label = ttk.Label(
+            frame,
+            text="External Fragmentation: 0%"
+        )
+
+        self.fragmentation_label.pack(
+            side="left",
+            padx=10
         )
 
         self.swap_in_label = ttk.Label(
@@ -341,7 +371,7 @@ class MainWindow:
 
         self.swap_in_label.pack(
             side="left",
-            padx=15
+            padx=10
         )
 
         self.swap_out_label = ttk.Label(
@@ -351,7 +381,7 @@ class MainWindow:
 
         self.swap_out_label.pack(
             side="left",
-            padx=15
+            padx=10
         )
 
     # =====================================
@@ -492,6 +522,10 @@ class MainWindow:
                     str(error)
                 )
 
+                self.add_log(
+                    f"Allocation failed: {error}"
+                )
+
         ttk.Button(
             dialog,
             text="Create",
@@ -562,6 +596,10 @@ class MainWindow:
                 str(error)
             )
 
+            self.add_log(
+                f"Swap Out failed: {error}"
+            )
+
     # =====================================
     # Swap In
     # =====================================
@@ -592,6 +630,10 @@ class MainWindow:
             messagebox.showwarning(
                 "Swap In",
                 str(error)
+            )
+
+            self.add_log(
+                f"Swap In failed: {error}"
             )
 
     # =====================================
@@ -698,7 +740,7 @@ class MainWindow:
             self.manager.get_swap_usage()
         )
 
-        # Statistics
+        # Available space
         ram_available = (
             self.manager.ram_size
             - ram_used
@@ -709,6 +751,26 @@ class MainWindow:
             - swap_used
         )
 
+        # RAM fragmentation
+        fragmentation = (
+            self.manager.get_ram_fragmentation()
+        )
+
+        free_blocks = (
+            fragmentation["free_blocks"]
+        )
+
+        largest_block = (
+            fragmentation["largest_block"]
+        )
+
+        external_fragmentation = (
+            fragmentation[
+                "external_fragmentation"
+            ]
+        )
+
+        # Basic statistics
         self.total_processes_label.config(
             text=(
                 f"Total Processes: "
@@ -730,6 +792,29 @@ class MainWindow:
             )
         )
 
+        # Fragmentation statistics
+        self.free_blocks_label.config(
+            text=(
+                f"Free Blocks: "
+                f"{free_blocks}"
+            )
+        )
+
+        self.largest_block_label.config(
+            text=(
+                f"Largest Free Block: "
+                f"{largest_block} MB"
+            )
+        )
+
+        self.fragmentation_label.config(
+            text=(
+                f"External Fragmentation: "
+                f"{external_fragmentation:.0f}%"
+            )
+        )
+
+        # Swap statistics
         self.swap_in_label.config(
             text=(
                 f"Swap In: "
@@ -744,6 +829,7 @@ class MainWindow:
             )
         )
 
+        # RAM usage
         self.ram_usage.config(
             text=(
                 f"RAM Usage: "
@@ -753,6 +839,7 @@ class MainWindow:
             )
         )
 
+        # Swap usage
         self.swap_usage.config(
             text=(
                 f"Swap Usage: "
@@ -816,6 +903,10 @@ class MainWindow:
 
         self.log.config(
             state="disabled"
+        )
+
+        self.add_log(
+            "Simulation reset."
         )
 
         self.update_display()
