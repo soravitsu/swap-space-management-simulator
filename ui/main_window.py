@@ -5,9 +5,7 @@ from simulator.swap_manager import SwapManager
 
 
 class MainWindow:
-
     def __init__(self, root):
-
         self.root = root
 
         self.root.title(
@@ -23,6 +21,7 @@ class MainWindow:
             swap_size=16
         )
 
+        # Create UI
         self.create_header()
         self.create_memory_area()
         self.create_controls()
@@ -37,13 +36,14 @@ class MainWindow:
     # =====================================
 
     def create_header(self):
-
         frame = ttk.Frame(
             self.root,
             padding=15
         )
 
-        frame.pack(fill="x")
+        frame.pack(
+            fill="x"
+        )
 
         ttk.Label(
             frame,
@@ -54,14 +54,15 @@ class MainWindow:
         ttk.Label(
             frame,
             text="Operating System Memory Management Simulation"
-        ).pack(pady=(5, 0))
+        ).pack(
+            pady=(5, 0)
+        )
 
     # =====================================
     # RAM / Swap
     # =====================================
 
     def create_memory_area(self):
-
         frame = ttk.Frame(
             self.root,
             padding=10
@@ -73,7 +74,6 @@ class MainWindow:
         )
 
         # RAM
-
         ram_frame = ttk.LabelFrame(
             frame,
             text="RAM Memory (16 MB)",
@@ -107,7 +107,6 @@ class MainWindow:
         )
 
         # SWAP
-
         swap_frame = ttk.LabelFrame(
             frame,
             text="Swap Space (16 MB)",
@@ -145,7 +144,6 @@ class MainWindow:
     # =====================================
 
     def create_controls(self):
-
         frame = ttk.LabelFrame(
             self.root,
             text="Simulation Controls",
@@ -158,42 +156,96 @@ class MainWindow:
             pady=10
         )
 
+        # Allocation Strategy
+        ttk.Label(
+            frame,
+            text="Allocation Strategy:"
+        ).pack(
+            side="left",
+            padx=(5, 2)
+        )
+
+        self.strategy_var = tk.StringVar(
+            value=self.manager.strategy
+        )
+
+        self.strategy_combo = ttk.Combobox(
+            frame,
+            textvariable=self.strategy_var,
+            values=[
+                "First Fit",
+                "Best Fit",
+                "Worst Fit"
+            ],
+            state="readonly",
+            width=12
+        )
+
+        self.strategy_combo.pack(
+            side="left",
+            padx=5
+        )
+
+        self.strategy_combo.bind(
+            "<<ComboboxSelected>>",
+            self.change_strategy
+        )
+
+        # Create Process
         ttk.Button(
             frame,
             text="Create Process",
             command=self.create_process
-        ).pack(side="left", padx=5)
+        ).pack(
+            side="left",
+            padx=5
+        )
 
+        # Swap In
         ttk.Button(
             frame,
             text="Swap In",
             command=self.swap_in
-        ).pack(side="left", padx=5)
+        ).pack(
+            side="left",
+            padx=5
+        )
 
+        # Swap Out
         ttk.Button(
             frame,
             text="Swap Out",
             command=self.swap_out
-        ).pack(side="left", padx=5)
+        ).pack(
+            side="left",
+            padx=5
+        )
 
+        # Terminate
         ttk.Button(
             frame,
             text="Terminate Process",
             command=self.terminate_process
-        ).pack(side="left", padx=5)
+        ).pack(
+            side="left",
+            padx=5
+        )
 
+        # Reset
         ttk.Button(
             frame,
             text="Reset",
             command=self.reset
-        ).pack(side="right", padx=5)
+        ).pack(
+            side="right",
+            padx=5
+        )
 
     # =====================================
     # Process Table
     # =====================================
 
     def create_process_table(self):
-
         frame = ttk.LabelFrame(
             self.root,
             text="Process Table",
@@ -221,7 +273,6 @@ class MainWindow:
         )
 
         for column in columns:
-
             self.process_table.heading(
                 column,
                 text=column
@@ -241,7 +292,6 @@ class MainWindow:
     # =====================================
 
     def create_statistics(self):
-
         frame = ttk.LabelFrame(
             self.root,
             text="Simulation Statistics",
@@ -309,7 +359,6 @@ class MainWindow:
     # =====================================
 
     def create_log(self):
-
         frame = ttk.LabelFrame(
             self.root,
             text="Event Log",
@@ -335,7 +384,6 @@ class MainWindow:
         )
 
     def add_log(self, message):
-
         self.log.config(
             state="normal"
         )
@@ -345,18 +393,41 @@ class MainWindow:
             message + "\n"
         )
 
-        self.log.see("end")
+        self.log.see(
+            "end"
+        )
 
         self.log.config(
             state="disabled"
         )
 
     # =====================================
+    # Allocation Strategy
+    # =====================================
+
+    def change_strategy(self, event=None):
+        strategy = self.strategy_var.get()
+
+        try:
+            self.manager.set_strategy(
+                strategy
+            )
+
+            self.add_log(
+                f"Allocation Strategy → {strategy}"
+            )
+
+        except ValueError as error:
+            messagebox.showerror(
+                "Allocation Strategy",
+                str(error)
+            )
+
+    # =====================================
     # Create Process
     # =====================================
 
     def create_process(self):
-
         dialog = tk.Toplevel(
             self.root
         )
@@ -389,9 +460,7 @@ class MainWindow:
         entry.focus()
 
         def confirm():
-
             try:
-
                 size = int(
                     entry.get()
                 )
@@ -412,14 +481,12 @@ class MainWindow:
                 dialog.destroy()
 
             except ValueError as error:
-
                 messagebox.showerror(
                     "Invalid Process",
                     str(error)
                 )
 
             except MemoryError as error:
-
                 messagebox.showwarning(
                     "Memory Full",
                     str(error)
@@ -438,14 +505,12 @@ class MainWindow:
     # =====================================
 
     def get_selected_process(self):
-
         selection = (
             self.process_table
             .selection()
         )
 
         if not selection:
-
             messagebox.showinfo(
                 "No Process Selected",
                 "Please select a process first."
@@ -470,7 +535,6 @@ class MainWindow:
     # =====================================
 
     def swap_out(self):
-
         process = (
             self.get_selected_process()
         )
@@ -479,7 +543,6 @@ class MainWindow:
             return
 
         try:
-
             self.manager.swap_out(
                 process
             )
@@ -494,7 +557,6 @@ class MainWindow:
             ValueError,
             MemoryError
         ) as error:
-
             messagebox.showwarning(
                 "Swap Out",
                 str(error)
@@ -505,7 +567,6 @@ class MainWindow:
     # =====================================
 
     def swap_in(self):
-
         process = (
             self.get_selected_process()
         )
@@ -514,7 +575,6 @@ class MainWindow:
             return
 
         try:
-
             self.manager.swap_in(
                 process
             )
@@ -529,7 +589,6 @@ class MainWindow:
             ValueError,
             MemoryError
         ) as error:
-
             messagebox.showwarning(
                 "Swap In",
                 str(error)
@@ -540,7 +599,6 @@ class MainWindow:
     # =====================================
 
     def terminate_process(self):
-
         process = (
             self.get_selected_process()
         )
@@ -567,8 +625,9 @@ class MainWindow:
         canvas,
         memory
     ):
-
-        canvas.delete("all")
+        canvas.delete(
+            "all"
+        )
 
         width = (
             canvas.winfo_width()
@@ -584,19 +643,20 @@ class MainWindow:
         for index, process in enumerate(
             memory
         ):
+            x1 = (
+                index * block_width
+            )
 
-            x1 = index * block_width
             x2 = (
-                index + 1
-            ) * block_width
+                (index + 1)
+                * block_width
+            )
 
             if process is None:
-
                 text = "Free"
                 fill = "white"
 
             else:
-
                 text = process.pid
                 fill = "lightblue"
 
@@ -620,7 +680,6 @@ class MainWindow:
     # =====================================
 
     def update_display(self):
-
         self.draw_memory(
             self.ram_canvas,
             self.manager.ram
@@ -632,17 +691,14 @@ class MainWindow:
         )
 
         ram_used, ram_percent = (
-            self.manager
-            .get_ram_usage()
+            self.manager.get_ram_usage()
         )
 
         swap_used, swap_percent = (
-            self.manager
-            .get_swap_usage()
+            self.manager.get_swap_usage()
         )
 
-                # Statistics
-
+        # Statistics
         ram_available = (
             self.manager.ram_size
             - ram_used
@@ -706,19 +762,19 @@ class MainWindow:
             )
         )
 
+        # Clear process table
         for item in (
             self.process_table
             .get_children()
         ):
-
             self.process_table.delete(
                 item
             )
 
+        # Add processes
         for process in (
             self.manager.processes
         ):
-
             self.process_table.insert(
                 "",
                 "end",
@@ -735,18 +791,19 @@ class MainWindow:
     # =====================================
 
     def reset(self):
-
-        answer = (
-            messagebox.askyesno(
-                "Reset Simulator",
-                "Reset the entire simulation?"
-            )
+        answer = messagebox.askyesno(
+            "Reset Simulator",
+            "Reset the entire simulation?"
         )
 
         if not answer:
             return
 
         self.manager.reset()
+
+        self.strategy_var.set(
+            self.manager.strategy
+        )
 
         self.log.config(
             state="normal"
